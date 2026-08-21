@@ -1,20 +1,13 @@
-import { useEffect } from 'react';
-import { USERS_API_URL, VEHICLES_API_URL } from './lib/constants';
+import { Users } from './components/Users';
+import { Vehicles } from './components/Vehicles';
 
 function App() {
-  useEffect(() => {
-    (async () => {
-      const usersRes = await fetch(`${USERS_API_URL}/users`);
-      const users = await usersRes.json();
-      const vehiclesRes = await fetch(`${VEHICLES_API_URL}/vehicles`);
-      const vehicles = await vehiclesRes.json();
-
-      console.log('Users:', users);
-      console.log('Vehicles:', vehicles);
-    })();
-  }, []);
-
-  return <div></div>;
+  return (
+    <>
+      <Users />
+      <Vehicles />
+    </>
+  );
 }
 
 export default App;

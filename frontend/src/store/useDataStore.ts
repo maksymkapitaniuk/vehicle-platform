@@ -2,12 +2,12 @@ import { create } from 'zustand';
 import type { User } from '../types/User';
 import type { Vehicle } from '../types/Vehicle';
 
-type AppStoreState = {
+type DataStoreState = {
   users: User[];
   vehicles: Vehicle[];
 };
 
-type AppStoreActions = {
+type DataStoreActions = {
   setUsers: (_newUsers: User[]) => void;
   setVehicles: (_newVehicles: Vehicle[]) => void;
   addUser: (_newUser: User) => void;
@@ -18,9 +18,9 @@ type AppStoreActions = {
   removeVehicle: (_id: string) => void;
 };
 
-type AppStore = AppStoreState & AppStoreActions;
+type DataStore = DataStoreState & DataStoreActions;
 
-export const useAppStore = create<AppStore>((set) => ({
+export const useDataStore = create<DataStore>((set) => ({
   users: [],
   vehicles: [],
   setUsers: (newUsers) => set({ users: newUsers }),
