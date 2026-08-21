@@ -38,6 +38,7 @@ export default defineConfig([
       'import/resolver': {
         alias: {
           map: [['/', './public']],
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
         },
       },
     },
@@ -56,7 +57,11 @@ export default defineConfig([
       'react-hooks/refs': 'warn',
       'react-refresh/only-export-components': 'warn',
       'import/no-unresolved': 'error',
-      'import/extensions': ['error', 'ignorePackages'],
+      'import/extensions': [
+        'error',
+        'ignorePackages',
+        { js: 'never', jsx: 'never', ts: 'never', tsx: 'never' },
+      ],
     },
   },
 ]);
