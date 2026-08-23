@@ -6,7 +6,21 @@ if (!connectionString) {
   throw new Error('Cannot connect to MongoDB: No connection string provided');
 }
 
-await mongoose.connect(connectionString);
+try {
+  await mongoose.connect(connectionString);
+  console.log('Successfully connected to MongoDB');
+} catch (error) {
+  console.error('Error connecting to MongoDB:', error.message);
+  process.exit(1);
+}
+
+mongoose.connection.on('error', (error) => {
+  console.error('MongoDB runtime error:', error.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected');
+});
 
 const vehicleSchema = new mongoose.Schema({
   make: {

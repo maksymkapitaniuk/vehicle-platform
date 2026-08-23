@@ -1,5 +1,7 @@
-import { Card, CardContent, Typography } from '@mui/material';
-import type { Vehicle as VehicleType } from '../types/Vehicle';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import type { Vehicle as VehicleType } from '../../types/Vehicle';
 
 export interface VehicleProps {
   vehicle: VehicleType;

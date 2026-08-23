@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { useDataStore } from '../store/useDataStore';
-import { Container, Grid } from '@mui/material';
+import { useDataStore } from '../../store/useDataStore';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
 import { User } from './User';
-import { USERS_API_URL } from '../lib/constants';
+import { USERS_API_URL } from '../../lib/constants';
 
 export function Users() {
   const users = useDataStore((state) => state.users);

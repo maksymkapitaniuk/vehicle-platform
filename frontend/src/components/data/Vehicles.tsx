@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { useDataStore } from '../store/useDataStore';
-import { Container, Grid } from '@mui/material';
+import { useDataStore } from '../../store/useDataStore';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
 import { Vehicle } from './Vehicle';
-import { VEHICLES_API_URL } from '../lib/constants';
+import { VEHICLES_API_URL } from '../../lib/constants';
 
 export function Vehicles() {
   const vehicles = useDataStore((state) => state.vehicles);
