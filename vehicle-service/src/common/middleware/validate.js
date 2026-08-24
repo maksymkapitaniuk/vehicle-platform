@@ -11,7 +11,7 @@ const validate = (schema) => async (req, res, next) => {
         errors: JSON.parse(error.message).map((e) =>
           e.code === 'unrecognized_keys'
             ? {
-                key: e.keys.join('.'),
+                keys: e.keys,
                 message: e.message,
               }
             : {

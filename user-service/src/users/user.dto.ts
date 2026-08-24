@@ -16,7 +16,6 @@ export class CreateUserDto {
   email!: string;
 
   @IsStrongPassword({
-    minUppercase: 0,
     minSymbols: 0,
   })
   password!: string;
@@ -40,7 +39,6 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsStrongPassword({
-    minUppercase: 0,
     minSymbols: 0,
   })
   password!: string;

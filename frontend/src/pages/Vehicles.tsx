@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { useDataStore } from '../store/useDataStore';
 import { Vehicle } from '../components/data/Vehicle';
-import { VEHICLES_API_URL } from '../lib/constants';
+import { getVehicles } from '../api/vehicles';
 
 export function Vehicles() {
   const vehicles = useDataStore((state) => state.vehicles);
@@ -15,12 +15,9 @@ export function Vehicles() {
 
   useEffect(() => {
     async function fetchVehicles() {
-      const vehiclesRes = await fetch(`${VEHICLES_API_URL}/vehicles`);
-      const vehiclesData = await vehiclesRes.json();
+      const vehiclesData = await getVehicles();
 
-      if (vehiclesRes.ok) {
-        setVehicles(vehiclesData);
-      }
+      setVehicles(vehiclesData);
     }
 
     fetchVehicles();

@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { useDataStore } from '../store/useDataStore';
 import { User } from '../components/data/User';
-import { USERS_API_URL } from '../lib/constants';
+import { getUsers } from '../api/users';
 
 export function Users() {
   const users = useDataStore((state) => state.users);
@@ -15,12 +15,9 @@ export function Users() {
 
   useEffect(() => {
     async function fetchUsers() {
-      const usersRes = await fetch(`${USERS_API_URL}/users`);
-      const usersData = await usersRes.json();
+      const usersData = await getUsers();
 
-      if (usersRes.ok) {
-        setUsers(usersData);
-      }
+      setUsers(usersData);
     }
 
     fetchUsers();
