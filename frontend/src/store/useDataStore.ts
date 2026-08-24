@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { User } from '../types/User';
-import type { Vehicle } from '../types/Vehicle';
+import type { User } from '../dto/User';
+import type { Vehicle } from '../dto/Vehicle';
 
 type DataStoreState = {
   users: User[];

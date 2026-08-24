@@ -1,7 +1,7 @@
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import type { User as UserType } from '../../types/User';
+import type { UserType } from '../../dto/User';
 
 export interface UserProps {
   user: UserType;

@@ -1,8 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
-import vehiclesRouter from './vehicles/routes.js';
 import helmet from 'helmet';
 import cors from 'cors';
+import vehiclesRouter from './vehicles/routes.js';
+import errorHandler from './common/middleware/error-handler.js';
 
 const app = express();
 
@@ -20,9 +21,6 @@ app.use(express.json());
 
 app.use('/vehicles', vehiclesRouter);
 
-app.use((err, req, res, _next) => {
-  res.status(500);
-  res.json(err);
-});
+app.use(errorHandler);
 
 app.listen(port, () => console.log(`Server is listening at ${port}`));

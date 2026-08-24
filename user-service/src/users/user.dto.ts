@@ -1,10 +1,15 @@
 import {
   IsString,
+  MinLength,
+  MaxLength,
   IsEmail,
-  IsDateString,
+  IsDate,
+  MinDate,
+  MaxDate,
   IsOptional,
   IsStrongPassword,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto {
   @IsEmail()
@@ -17,10 +22,15 @@ export class CreateUserDto {
   password!: string;
 
   @IsString()
+  @MinLength(2)
+  @MaxLength(50)
   name!: string;
 
-  @IsDateString()
-  birthDate!: string;
+  @Type(() => Date)
+  @IsDate()
+  @MinDate(new Date('1900-01-01'))
+  @MaxDate(new Date())
+  birthDate!: Date;
 }
 
 export class UpdateUserDto {
@@ -37,9 +47,14 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(2)
+  @MaxLength(50)
   name!: string;
 
   @IsOptional()
-  @IsDateString()
-  birthDate!: string;
+  @Type(() => Date)
+  @IsDate()
+  @MinDate(new Date('1900-01-01'))
+  @MaxDate(new Date())
+  birthDate!: Date;
 }

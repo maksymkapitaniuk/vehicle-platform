@@ -25,7 +25,7 @@ export class UsersService {
 
     try {
       return await this.prisma.user.create({
-        data: { ...dto, password: hash, birthDate: new Date(dto.birthDate) },
+        data: { ...dto, password: hash },
         omit: {
           password: true,
         },
@@ -65,18 +65,10 @@ export class UsersService {
   }
 
   async updateById(id: number, dto: UpdateUserDto) {
-    const updateDto: Omit<UpdateUserDto, 'birthDate'> & {
-      birthDate: Date | string | undefined;
-    } = { ...dto };
-
-    if (updateDto.birthDate) {
-      updateDto.birthDate = new Date(updateDto.birthDate);
-    }
-
     try {
       return await this.prisma.user.update({
         where: { id },
-        data: updateDto,
+        data: dto,
         omit: { password: true },
       });
     } catch (error) {

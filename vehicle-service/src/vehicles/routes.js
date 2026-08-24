@@ -1,5 +1,7 @@
 import express from 'express';
 import vehiclesController from './controller.js';
+import validate from '../common/middleware/validate.js';
+import { CreateVehicleDto, UpdateVehicleDto } from './vehicle-dto.js';
 
 const vehiclesRouter = express.Router();
 
@@ -8,7 +10,7 @@ vehiclesRouter.get('/', async (req, res) => {
   res.json(vehicles);
 });
 
-vehiclesRouter.post('/', async (req, res) => {
+vehiclesRouter.post('/', validate(CreateVehicleDto), async (req, res) => {
   const vehicle = await vehiclesController.create(req.body);
   res.json(vehicle);
 });
@@ -24,7 +26,7 @@ vehiclesRouter.get('/:id', async (req, res) => {
   res.json(vehicle);
 });
 
-vehiclesRouter.put('/:id', async (req, res) => {
+vehiclesRouter.put('/:id', validate(UpdateVehicleDto), async (req, res) => {
   const vehicle = await vehiclesController.updateById(req.params.id, req.body);
 
   if (!vehicle) {

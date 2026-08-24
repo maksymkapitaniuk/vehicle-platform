@@ -17,7 +17,7 @@ const vehiclesController = {
     return Vehicle.findByIdAndUpdate(
       id,
       { $set: dto },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
   },
 
