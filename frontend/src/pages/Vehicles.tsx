@@ -1,27 +1,14 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import { useDataStore } from '../store/useDataStore';
-import { Vehicle } from '../components/data/Vehicle';
-import { getVehicles } from '../api/vehicles';
+import { VehicleCard } from '../components/data/VehicleCard';
+import { useVehicles } from '../hooks/useVehicles';
 
 export function Vehicles() {
-  const vehicles = useDataStore((state) => state.vehicles);
-  const setVehicles = useDataStore((state) => state.setVehicles);
-
-  useEffect(() => {
-    async function fetchVehicles() {
-      const vehiclesData = await getVehicles();
-
-      setVehicles(vehiclesData);
-    }
-
-    fetchVehicles();
-  }, [setVehicles]);
+  const { vehicles } = useVehicles();
 
   return (
     <Container>
@@ -38,7 +25,7 @@ export function Vehicles() {
       </Box>
       <Grid container spacing={3} sx={{ mt: 4 }}>
         {vehicles.map((vehicle) => (
-          <Vehicle key={vehicle._id} vehicle={vehicle} />
+          <VehicleCard key={vehicle._id} vehicle={vehicle} />
         ))}
       </Grid>
     </Container>

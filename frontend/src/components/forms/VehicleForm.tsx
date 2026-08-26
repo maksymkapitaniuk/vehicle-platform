@@ -1,5 +1,7 @@
+import type { FormMode } from './types/FormMode';
+
 export interface VehicleFormProps {
-  mode: 'create' | 'update';
+  mode: FormMode;
 }
 
 export function VehicleForm({ mode }: VehicleFormProps) {

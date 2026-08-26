@@ -1,27 +1,14 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import { useDataStore } from '../store/useDataStore';
-import { User } from '../components/data/User';
-import { getUsers } from '../api/users';
+import { UserCard } from '../components/data/UserCard';
+import { useUsers } from '../hooks/useUsers';
 
 export function Users() {
-  const users = useDataStore((state) => state.users);
-  const setUsers = useDataStore((state) => state.setUsers);
-
-  useEffect(() => {
-    async function fetchUsers() {
-      const usersData = await getUsers();
-
-      setUsers(usersData);
-    }
-
-    fetchUsers();
-  }, [setUsers]);
+  const { users } = useUsers();
 
   return (
     <Container>
@@ -38,7 +25,7 @@ export function Users() {
       </Box>
       <Grid container spacing={3} sx={{ mt: 4 }}>
         {users.map((user) => (
-          <User key={user.id} user={user} />
+          <UserCard key={user.id} user={user} />
         ))}
       </Grid>
     </Container>

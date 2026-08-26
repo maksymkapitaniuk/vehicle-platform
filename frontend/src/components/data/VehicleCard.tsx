@@ -3,11 +3,11 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import type { VehicleType } from '../../dto/Vehicle';
 
-export interface VehicleProps {
+export interface VehicleCardProps {
   vehicle: VehicleType;
 }
 
-export function Vehicle({ vehicle }: VehicleProps) {
+export function VehicleCard({ vehicle }: VehicleCardProps) {
   return (
     <Card>
       <CardContent>

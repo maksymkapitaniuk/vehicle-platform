@@ -1,50 +1,47 @@
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Container from '@mui/material/Container';
-import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { UserDto, type UserDtoType } from '../../dto/User';
+import { Input } from '../ui/Input';
+import { getUserFormSchema } from '../../dto/User';
+import type { UserDtoType } from '../../dto/User';
 import { createUser, updateUser } from '../../api/users';
+import { useUser } from '../../hooks/useUser';
+import { formatDateForInput } from '../../util/date';
+import type { FormMode } from './types/FormMode';
 
 export interface UserFormProps {
-  mode: 'create' | 'update';
+  mode: FormMode;
 }
 
 export function UserForm({ mode }: UserFormProps) {
-  const { userId } = useParams();
+  const { id: userId_str } = useParams();
+  const userId = Number(userId_str);
   const navigate = useNavigate();
 
-  const requiredFormSchema = UserDto.extend({
-    confirmPassword: z.string(),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+  const { user } = useUser(userId);
 
-  const formSchema =
-    mode === 'create' ? requiredFormSchema : requiredFormSchema.partial();
-
-  type FormSchemaInputType = z.input<typeof formSchema>;
-
-  type FormSchemaOutputType = z.output<typeof formSchema>;
-
-  const [showPassword, setShowPassword] = useState(false);
+  const FormSchema = getUserFormSchema(mode);
+  type FormSchemaInputType = z.input<typeof FormSchema>;
+  type FormSchemaOutputType = z.output<typeof FormSchema>;
 
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors },
+    formState: { dirtyFields, errors, isDirty },
   } = useForm<FormSchemaInputType, unknown, FormSchemaOutputType>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(FormSchema),
+    values: user
+      ? {
+          ...user,
+          birthDate: formatDateForInput(user.birthDate),
+        }
+      : undefined,
     defaultValues: {
       name: '',
       email: '',
@@ -67,22 +64,36 @@ export function UserForm({ mode }: UserFormProps) {
         navigate('/users');
       }
     } else {
-      const dto: Partial<UserDtoType> = { ...data };
-      const id_num = Number(userId);
-
-      if (!id_num) {
-        return;
+      if (!isDirty) {
+        return navigate(`/users/${userId}`);
       }
 
-      const res = await updateUser(id_num, dto);
+      const dto = {
+        name: dirtyFields.name && data.name?.length ? data.name : undefined,
+        email: dirtyFields.email && data.email?.length ? data.email : undefined,
+        birthDate: dirtyFields.birthDate ? data.birthDate : undefined,
+        password:
+          dirtyFields.password && data.password?.length
+            ? data.password
+            : undefined,
+      };
+
+      if (
+        !userId ||
+        (!dto.name && !dto.email && !dto.birthDate && !dto.password)
+      ) {
+        return navigate(`/users/${userId}`);
+      }
+
+      const res = await updateUser(userId, dto);
       if (res) {
-        navigate('/users');
+        return navigate(`/users/${userId}`);
       }
     }
   };
 
   return (
-    <Container
+    <Box
       component="form"
       onSubmit={handleSubmit(onSubmit)}
       sx={{
@@ -90,94 +101,88 @@ export function UserForm({ mode }: UserFormProps) {
         flexDirection: 'column',
         gap: 2,
         maxWidth: 400,
+        mx: 'auto',
+        width: '100%',
         mt: 5,
       }}
     >
-      <Typography variant="h5">Create a User</Typography>
+      <Typography variant="h5">
+        {mode === 'create' ? 'Create a User' : 'Edit User'}
+      </Typography>
 
-      <TextField
+      <Input
+        name="name"
+        control={control}
         label="Name"
-        variant="outlined"
-        {...register('name')}
-        error={!!errors.name}
-        helperText={errors.name?.message}
+        type="name"
+        error={errors.name}
       />
 
-      <TextField
-        label="Email"
+      <Input
+        name="email"
+        control={control}
         type="email"
-        variant="outlined"
-        {...register('email')}
-        error={!!errors.email}
-        helperText={errors.email?.message}
+        label="Email"
+        error={errors.email}
         autoComplete="username"
       />
 
-      <TextField
-        label="Password"
-        type={showPassword ? 'text' : 'password'}
-        variant="outlined"
-        {...register('password')}
-        error={!!errors.password}
-        helperText={errors.password?.message}
+      <Input
+        name="password"
+        control={control}
+        label={mode === 'create' ? 'Password' : 'New Password'}
+        type="password"
+        error={errors.password}
         autoComplete="new-password"
-        slotProps={{
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowPassword(!showPassword)}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
       />
 
-      <TextField
-        label="Confirm Password"
-        type={showPassword ? 'text' : 'password'}
-        variant="outlined"
-        {...register('confirmPassword')}
-        error={!!errors.confirmPassword}
-        helperText={errors.confirmPassword?.message}
+      <Input
+        name="confirmPassword"
+        control={control}
+        label={mode === 'create' ? 'Confirm Password' : 'Confirm new Password'}
+        type="password"
+        error={errors.confirmPassword}
         autoComplete="new-password"
-        slotProps={{
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowPassword(!showPassword)}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
       />
 
-      <TextField
+      <Input
+        name="birthDate"
+        control={control}
         label="Birth Date"
         type="date"
-        variant="outlined"
-        {...register('birthDate')}
-        error={!!errors.birthDate}
-        helperText={errors.birthDate?.message}
-        slotProps={{
-          inputLabel: {
-            shrink: true,
-          },
-        }}
+        error={errors.birthDate}
       />
 
-      <Button type="submit" variant="contained" color="primary" size="large">
-        Create
-      </Button>
-    </Container>
+      {mode === 'update' && (
+        <Typography
+          variant="body2"
+          sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+        >
+          &#128712; Leave fields untouched or empty if you do not want to edit
+          them.
+        </Typography>
+      )}
+
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
+        <Button
+          component={Link}
+          to=".."
+          variant="contained"
+          color="secondary"
+          size="large"
+        >
+          Back
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ flexGrow: 1 }}
+        >
+          {mode === 'create' ? 'Create' : 'Edit'}
+        </Button>
+      </Box>
+    </Box>
   );
 }

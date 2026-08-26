@@ -1,8 +1,9 @@
 import Container from '@mui/material/Container';
 import { VehicleForm } from '../components/forms/VehicleForm';
+import type { FormMode } from '../components/forms/types/FormMode';
 
 export interface VehicleFormPageProps {
-  mode: 'create' | 'update';
+  mode: FormMode;
 }
 
 export function VehicleFormPage({ mode }: VehicleFormPageProps) {
