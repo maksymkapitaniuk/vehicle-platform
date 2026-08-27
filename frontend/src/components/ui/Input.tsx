@@ -1,4 +1,5 @@
-import { useState, type HTMLInputTypeAttribute } from 'react';
+import { useState } from 'react';
+import type { HTMLInputTypeAttribute } from 'react';
 import { Controller } from 'react-hook-form';
 import type {
   Control,

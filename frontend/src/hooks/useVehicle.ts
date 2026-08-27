@@ -22,7 +22,9 @@ export function useVehicle(vehicleId: string) {
       }
     }
 
-    fetchVehicle();
+    if (vehicleId) {
+      fetchVehicle();
+    }
   }, [vehicleId]);
 
   return { vehicle, loading, error };

@@ -22,7 +22,9 @@ export function useUser(userId: number) {
       }
     }
 
-    fetchUser();
+    if (userId) {
+      fetchUser();
+    }
   }, [userId]);
 
   return { user, loading, error };

@@ -61,14 +61,14 @@ export function UserForm({ mode }: UserFormProps) {
 
       const res = await createUser(dto);
       if (res) {
-        navigate('/users');
+        navigate(`/users/${userId}`);
       }
     } else {
       if (!isDirty) {
         return navigate(`/users/${userId}`);
       }
 
-      const dto = {
+      const dto: Partial<UserDtoType> = {
         name: dirtyFields.name && data.name?.length ? data.name : undefined,
         email: dirtyFields.email && data.email?.length ? data.email : undefined,
         birthDate: dirtyFields.birthDate ? data.birthDate : undefined,
@@ -114,15 +114,15 @@ export function UserForm({ mode }: UserFormProps) {
         name="name"
         control={control}
         label="Name"
-        type="name"
+        type="text"
         error={errors.name}
       />
 
       <Input
         name="email"
         control={control}
-        type="email"
         label="Email"
+        type="email"
         error={errors.email}
         autoComplete="username"
       />

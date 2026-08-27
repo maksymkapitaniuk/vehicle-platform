@@ -5,48 +5,50 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { deleteUser } from '../api/users';
-import { useUser } from '../hooks/useUser';
+import { deleteVehicle } from '../api/vehicles';
+import { useVehicle } from '../hooks/useVehicle';
 
-export function User() {
-  const { id: userId_str } = useParams();
-  const userId = Number(userId_str);
+export function Vehicle() {
+  const { id: vehicleId_optional } = useParams();
+  const vehicleId = vehicleId_optional ?? '';
   const navigate = useNavigate();
 
-  const { user } = useUser(userId);
+  const { vehicle } = useVehicle(vehicleId);
 
-  async function handleDeleteUser() {
-    const res = await deleteUser(userId);
+  async function handleDeleteVehicle() {
+    const res = await deleteVehicle(vehicleId);
 
     if (res) {
-      navigate('/users');
+      navigate('/vehicles');
     }
   }
 
-  if (!user) {
-    return <Typography>Loading user info...</Typography>;
+  if (!vehicle) {
+    return <Typography>Loading vehicle info...</Typography>;
   }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
-        <Typography sx={{ color: 'text.secondary' }}>Name:</Typography>
-        <Typography variant="h6">{user.name}</Typography>
+        <Typography sx={{ color: 'text.secondary' }}>Make:</Typography>
+        <Typography variant="h6">{vehicle.make}</Typography>
       </Stack>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
-        <Typography sx={{ color: 'text.secondary' }}>Email:</Typography>
-        <Typography>{user.email}</Typography>
+        <Typography sx={{ color: 'text.secondary' }}>Model:</Typography>
+        <Typography>{vehicle.model}</Typography>
       </Stack>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
-        <Typography sx={{ color: 'text.secondary' }}>Birth Date:</Typography>
+        <Typography sx={{ color: 'text.secondary' }}>
+          Year of release:
+        </Typography>
         <Typography sx={{ fontStyle: 'italic' }}>
-          {user.birthDate.toDateString()}
+          {vehicle.year ?? 'Unknown'}
         </Typography>
       </Stack>
       <Stack direction="row" spacing={1}>
         <Button
           component={Link}
-          to={`/update-user/${userId}`}
+          to={`/update-vehicle/${vehicleId}`}
           startIcon={<EditIcon />}
           variant="contained"
           color="info"
@@ -55,7 +57,7 @@ export function User() {
             fontSize: '16px',
           }}
         >
-          Edit User
+          Edit Vehicle
         </Button>
         <Button
           startIcon={<DeleteIcon />}
@@ -65,9 +67,9 @@ export function User() {
             textTransform: 'none',
             fontSize: '16px',
           }}
-          onClick={handleDeleteUser}
+          onClick={handleDeleteVehicle}
         >
-          Delete User
+          Delete Vehicle
         </Button>
       </Stack>
     </Box>

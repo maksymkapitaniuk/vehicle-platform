@@ -4,6 +4,7 @@ import { Users } from './pages/Users';
 import { User } from './pages/User';
 import { UserFormPage } from './pages/UserFormPage';
 import { Vehicles } from './pages/Vehicles';
+import { Vehicle } from './pages/Vehicle';
 import { VehicleFormPage } from './pages/VehicleFormPage';
 
 function App() {
@@ -22,9 +23,14 @@ function App() {
           />
 
           <Route path="/vehicles" element={<Vehicles />} />
+          <Route path="/vehicles/:id" element={<Vehicle />} />
           <Route
             path="/create-vehicle"
             element={<VehicleFormPage mode="create" />}
+          />
+          <Route
+            path="/update-vehicle/:id"
+            element={<VehicleFormPage mode="update" />}
           />
         </Route>
       </Routes>

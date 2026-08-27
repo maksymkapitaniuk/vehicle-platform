@@ -33,7 +33,18 @@ const vehicleSchema = new mongoose.Schema({
   },
   year: {
     type: Number,
-    required: true,
+    required: function () {
+      const value =
+        this instanceof mongoose.Document ? this.year : this.get('year');
+
+      return value === undefined;
+    },
+    validate: {
+      validator: function (v) {
+        return v === null || typeof v === 'number';
+      },
+      message: 'Year is required and has to Number or exactly "null".',
+    },
   },
   user_id: {
     type: Number,

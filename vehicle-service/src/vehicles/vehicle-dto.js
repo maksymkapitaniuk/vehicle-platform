@@ -17,7 +17,7 @@ export const CreateVehicleDto = z.strictObject({
     .max(100, {
       error: 'The model is too long (has to be at most 100 characters long).',
     }),
-  year: z.optional(
+  year: z.nullable(
     z
       .number()
       .min(1800, {

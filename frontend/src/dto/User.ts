@@ -1,13 +1,8 @@
 import z from 'zod';
 import type { FormMode } from '../components/forms/types/FormMode';
+import { falsyStringToValue } from '../util/validation';
 
-function emptyStringToUndefined(data: string | undefined) {
-  if (data === '') {
-    return undefined;
-  }
-
-  return data;
-}
+const falsyStringToUndefined = falsyStringToValue.bind(null, undefined);
 
 const UserName = z
   .string()
@@ -80,12 +75,12 @@ export type CreateUserFormSchemaOutputType = z.output<
 
 export const UpdateUserFormSchema = z
   .object({
-    name: z.preprocess(emptyStringToUndefined, z.optional(UserName)),
-    email: z.preprocess(emptyStringToUndefined, z.optional(UserEmail)),
-    birthDate: z.preprocess(emptyStringToUndefined, z.optional(UserBirthDate)),
-    password: z.preprocess(emptyStringToUndefined, z.optional(UserPassword)),
+    name: z.preprocess(falsyStringToUndefined, z.optional(UserName)),
+    email: z.preprocess(falsyStringToUndefined, z.optional(UserEmail)),
+    birthDate: z.preprocess(falsyStringToUndefined, z.optional(UserBirthDate)),
+    password: z.preprocess(falsyStringToUndefined, z.optional(UserPassword)),
     confirmPassword: z.preprocess(
-      emptyStringToUndefined,
+      falsyStringToUndefined,
       z.optional(z.string()),
     ),
   })
@@ -104,13 +99,3 @@ export type UpdateUserFormSchemaOutputType = z.output<
 export function getUserFormSchema(mode: FormMode) {
   return mode === 'create' ? CreateUserFormSchema : UpdateUserFormSchema;
 }
-
-export type UserFormSchemaInputType<TMode extends FormMode> =
-  TMode extends 'create'
-    ? CreateUserFormSchemaInputType
-    : UpdateUserFormSchemaInputType;
-
-export type UserFormSchemaOutputType<TMode extends FormMode> =
-  TMode extends 'create'
-    ? CreateUserFormSchemaOutputType
-    : UpdateUserFormSchemaOutputType;

@@ -10,12 +10,14 @@ export function Navbar() {
     <AppBar position="static" color="default">
       <Toolbar disableGutters>
         <Box sx={{ flexGrow: 0 }}>
-          <Box
-            component="img"
-            src={logo}
-            alt="Logo"
-            sx={{ mx: 4, cursor: 'pointer' }}
-          />
+          <Link to="/vehicles">
+            <Box
+              component="img"
+              src={logo}
+              alt="Logo"
+              sx={{ mx: 4, cursor: 'pointer' }}
+            />
+          </Link>
         </Box>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 4 }}>
           <Button
