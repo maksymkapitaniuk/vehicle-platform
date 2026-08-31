@@ -43,7 +43,7 @@ const vehicleSchema = new mongoose.Schema({
       validator: function (v) {
         return v === null || typeof v === 'number';
       },
-      message: 'Year is required and has to Number or exactly "null".',
+      message: 'Year is required and has to be Number or exactly "null".',
     },
   },
   user_id: {
