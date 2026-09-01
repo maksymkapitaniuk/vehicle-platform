@@ -1,12 +1,11 @@
-import { Link } from 'react-router-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { getUserFormSchema } from '../../dto/User';
 import type { UserDtoType } from '../../dto/User';
@@ -164,22 +163,10 @@ export function UserForm({ mode }: UserFormProps) {
       )}
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-        <Button
-          component={Link}
-          to=".."
-          variant="contained"
-          color="secondary"
-          size="large"
-        >
+        <Button onClick={() => navigate(-1)} variant="outlined" size="large">
           Back
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{ flexGrow: 1 }}
-        >
+        <Button type="submit" color="primary" size="large" sx={{ flexGrow: 1 }}>
           {mode === 'create' ? 'Create' : 'Edit'}
         </Button>
       </Box>

@@ -1,6 +1,6 @@
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import { Button } from '../ui/Button';
 import { NotFoundError } from '../../util/errors';
 import type { AppError } from '../../util/errors';
 
@@ -24,15 +24,7 @@ export function ErrorBlock({ error, onTryAgain }: ErrorBlockProps) {
         {error instanceof NotFoundError ? 'No data found' : 'An error occured'}
       </Typography>
       <Typography>{error.message}</Typography>
-      {onTryAgain && (
-        <Button
-          variant="contained"
-          sx={{ textTransform: 'none', fontSize: '16px' }}
-          onClick={onTryAgain}
-        >
-          Try again
-        </Button>
-      )}
+      {onTryAgain && <Button onClick={onTryAgain}>Try again</Button>}
     </Paper>
   );
 }

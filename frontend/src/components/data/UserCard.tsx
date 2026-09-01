@@ -3,7 +3,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import { Button } from '../ui/Button';
 import type { UserType } from '../../dto/User';
 
 export interface UserCardProps {
@@ -27,12 +27,9 @@ export function UserCard({ user }: UserCardProps) {
         <Button
           component={Link}
           to={`/users/${user.id}`}
-          variant="contained"
           sx={{
             px: 1,
             py: 0,
-            textTransform: 'none',
-            fontSize: '16px',
           }}
         >
           More...

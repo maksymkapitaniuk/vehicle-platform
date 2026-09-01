@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Button } from '../ui/Button';
 import { deleteVehicle } from '../../api/vehicles';
 import type { VehicleType } from '../../dto/Vehicle';
 
@@ -45,23 +45,13 @@ export function VehicleInfo({ vehicle }: VehicleInfoProps) {
           component={Link}
           to={`/update-vehicle/${vehicle._id}`}
           startIcon={<EditIcon />}
-          variant="contained"
           color="info"
-          sx={{
-            textTransform: 'none',
-            fontSize: '16px',
-          }}
         >
           Edit Vehicle
         </Button>
         <Button
           startIcon={<DeleteIcon />}
-          variant="contained"
           color="error"
-          sx={{
-            textTransform: 'none',
-            fontSize: '16px',
-          }}
           onClick={handleDeleteVehicle}
         >
           Delete Vehicle

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import { Button } from '../components/ui/Button';
 import { UsersGrid } from '../components/data/UsersGrid';
 import { Loader } from '../components/ui/Loader';
 import { ErrorBlock } from '../components/error/ErrorBlock';
@@ -14,12 +14,7 @@ export function Users() {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 4 }}>
         <Typography variant="h5">Users:</Typography>
-        <Button
-          component={Link}
-          to="/create-user"
-          variant="contained"
-          sx={{ textTransform: 'none', fontSize: '16px' }}
-        >
+        <Button component={Link} to="/create-user">
           Create a User
         </Button>
       </Box>

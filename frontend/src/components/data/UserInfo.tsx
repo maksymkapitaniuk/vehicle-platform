@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Button } from '../ui/Button';
 import { deleteUser } from '../../api/users';
 import type { UserType } from '../../dto/User';
 
@@ -43,23 +43,13 @@ export function UserInfo({ user }: UserInfoProps) {
           component={Link}
           to={`/update-user/${user.id}`}
           startIcon={<EditIcon />}
-          variant="contained"
           color="info"
-          sx={{
-            textTransform: 'none',
-            fontSize: '16px',
-          }}
         >
           Edit User
         </Button>
         <Button
           startIcon={<DeleteIcon />}
-          variant="contained"
           color="error"
-          sx={{
-            textTransform: 'none',
-            fontSize: '16px',
-          }}
           onClick={handleDeleteUser}
         >
           Delete User
