@@ -6,7 +6,7 @@ import type { AppError } from '../util/errors';
 
 export function useUser(userId: number) {
   const [user, setUser] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
 
   useEffect(() => {

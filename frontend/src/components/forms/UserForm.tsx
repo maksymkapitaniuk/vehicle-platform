@@ -1,29 +1,27 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { Loader } from '../ui/Loader';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { getUserFormSchema } from '../../dto/User';
-import type { UserDtoType } from '../../dto/User';
+import type { UserType, UserDtoType } from '../../dto/User';
 import { createUser, updateUser } from '../../api/users';
-import { useUser } from '../../hooks/useUser';
 import { formatDateForInput } from '../../util/date';
 import type { FormMode } from './types/FormMode';
 
 export interface UserFormProps {
   mode: FormMode;
+  user?: UserType | null | undefined;
+  loading?: boolean | undefined;
 }
 
-export function UserForm({ mode }: UserFormProps) {
-  const { id: userId_str } = useParams();
-  const userId = Number(userId_str);
+export function UserForm({ mode, user, loading }: UserFormProps) {
   const navigate = useNavigate();
-
-  const { user } = useUser(userId);
 
   const FormSchema = getUserFormSchema(mode);
   type FormSchemaInputType = z.input<typeof FormSchema>;
@@ -60,11 +58,15 @@ export function UserForm({ mode }: UserFormProps) {
 
       const res = await createUser(dto);
       if (res) {
-        navigate(`/users/${userId}`);
+        navigate(`/users`);
       }
     } else {
+      if (!user) {
+        return;
+      }
+
       if (!isDirty) {
-        return navigate(`/users/${userId}`);
+        return navigate(`/users/${user.id}`);
       }
 
       const dto: Partial<UserDtoType> = {
@@ -77,16 +79,13 @@ export function UserForm({ mode }: UserFormProps) {
             : undefined,
       };
 
-      if (
-        !userId ||
-        (!dto.name && !dto.email && !dto.birthDate && !dto.password)
-      ) {
-        return navigate(`/users/${userId}`);
+      if (!dto.name && !dto.email && !dto.birthDate && !dto.password) {
+        return navigate(`/users/${user.id}`);
       }
 
-      const res = await updateUser(userId, dto);
+      const res = await updateUser(user.id, dto);
       if (res) {
-        return navigate(`/users/${userId}`);
+        return navigate(`/users/${user.id}`);
       }
     }
   };
@@ -108,6 +107,8 @@ export function UserForm({ mode }: UserFormProps) {
       <Typography variant="h5">
         {mode === 'create' ? 'Create a User' : 'Edit User'}
       </Typography>
+
+      {loading && <Loader message="Loading user's data..." />}
 
       <Input
         name="name"
@@ -166,7 +167,13 @@ export function UserForm({ mode }: UserFormProps) {
         <Button onClick={() => navigate(-1)} variant="outlined" size="large">
           Back
         </Button>
-        <Button type="submit" color="primary" size="large" sx={{ flexGrow: 1 }}>
+        <Button
+          type="submit"
+          color="primary"
+          size="large"
+          sx={{ flexGrow: 1 }}
+          disabled={mode === 'update' && !user}
+        >
           {mode === 'create' ? 'Create' : 'Edit'}
         </Button>
       </Box>

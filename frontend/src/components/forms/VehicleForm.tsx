@@ -1,28 +1,26 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { Loader } from '../ui/Loader';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { getVehicleFormSchema } from '../../dto/Vehicle';
-import type { VehicleDtoType } from '../../dto/Vehicle';
+import type { VehicleType, VehicleDtoType } from '../../dto/Vehicle';
 import { createVehicle, updateVehicle } from '../../api/vehicles';
-import { useVehicle } from '../../hooks/useVehicle';
 import type { FormMode } from './types/FormMode';
 
 export interface VehicleFormProps {
   mode: FormMode;
+  vehicle?: VehicleType | null | undefined;
+  loading?: boolean | undefined;
 }
 
-export function VehicleForm({ mode }: VehicleFormProps) {
-  const { id: vehicleId_optional } = useParams();
-  const vehicleId = vehicleId_optional ?? '';
+export function VehicleForm({ mode, vehicle, loading }: VehicleFormProps) {
   const navigate = useNavigate();
-
-  const { vehicle } = useVehicle(vehicleId);
 
   const FormSchema = getVehicleFormSchema(mode);
   type FormSchemaInputType = z.input<typeof FormSchema>;
@@ -56,11 +54,15 @@ export function VehicleForm({ mode }: VehicleFormProps) {
 
       const res = await createVehicle(dto);
       if (res) {
-        navigate(`/vehicles/${vehicleId}`);
+        navigate(`/vehicles`);
       }
     } else {
+      if (!vehicle) {
+        return;
+      }
+
       if (!isDirty) {
-        return navigate(`/vehicles/${vehicleId}`);
+        return navigate(`/vehicles/${vehicle._id}`);
       }
 
       const dto: FormSchemaOutputType = {
@@ -70,16 +72,13 @@ export function VehicleForm({ mode }: VehicleFormProps) {
         user_id: dirtyFields.user_id ? data.user_id : undefined,
       };
 
-      if (
-        !vehicleId ||
-        (!dto.make && !dto.model && !dirtyFields.year && !dto.user_id)
-      ) {
-        return navigate(`/vehicles/${vehicleId}`);
+      if (!dto.make && !dto.model && !dirtyFields.year && !dto.user_id) {
+        return navigate(`/vehicles/${vehicle._id}`);
       }
 
-      const res = await updateVehicle(vehicleId, dto);
+      const res = await updateVehicle(vehicle._id, dto);
       if (res) {
-        return navigate(`/vehicles/${vehicleId}`);
+        return navigate(`/vehicles/${vehicle._id}`);
       }
     }
   };
@@ -101,6 +100,8 @@ export function VehicleForm({ mode }: VehicleFormProps) {
       <Typography variant="h5">
         {mode === 'create' ? 'Create a Vehicle' : 'Edit Vehicle'}
       </Typography>
+
+      {loading && <Loader message="Loading vehicle's data..." />}
 
       <Input
         name="make"
@@ -153,7 +154,13 @@ export function VehicleForm({ mode }: VehicleFormProps) {
         <Button onClick={() => navigate(-1)} variant="outlined" size="large">
           Back
         </Button>
-        <Button type="submit" color="primary" size="large" sx={{ flexGrow: 1 }}>
+        <Button
+          type="submit"
+          color="primary"
+          size="large"
+          sx={{ flexGrow: 1 }}
+          disabled={mode === 'update' && !vehicle}
+        >
           {mode === 'create' ? 'Create' : 'Edit'}
         </Button>
       </Box>

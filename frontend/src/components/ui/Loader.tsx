@@ -5,5 +5,5 @@ export interface LoaderProps {
 }
 
 export function Loader({ message }: LoaderProps) {
-  return <Typography>{message ?? 'Loading data...'}</Typography>;
+  return <Typography sx={{ my: 1 }}>{message ?? 'Loading data...'}</Typography>;
 }

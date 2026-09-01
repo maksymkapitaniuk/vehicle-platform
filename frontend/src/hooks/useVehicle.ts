@@ -6,7 +6,7 @@ import type { AppError } from '../util/errors';
 
 export function useVehicle(vehicleId: string) {
   const [vehicle, setVehicle] = useState<VehicleType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
 
   useEffect(() => {
