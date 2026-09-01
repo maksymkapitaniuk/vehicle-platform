@@ -1,4 +1,4 @@
-import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 import { VehicleForm } from '../components/forms/VehicleForm';
 import type { FormMode } from '../components/forms/types/FormMode';
 
@@ -8,8 +8,8 @@ export interface VehicleFormPageProps {
 
 export function VehicleFormPage({ mode }: VehicleFormPageProps) {
   return (
-    <Container>
+    <Box>
       <VehicleForm mode={mode} />
-    </Container>
+    </Box>
   );
 }

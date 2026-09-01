@@ -1,27 +1,29 @@
+import axios from 'axios';
 import { Vehicle } from '../dto/Vehicle';
 import type { VehicleDtoType, VehicleType } from '../dto/Vehicle';
+import { processHttpError } from '../util/errors';
 
 const VEHICLES_API_URL =
   import.meta.env.VITE_VEHICLES_API_URL ?? 'http://localhost:3001';
 
 export async function getVehicles() {
-  const vehiclesRes = await fetch(`${VEHICLES_API_URL}/vehicles`);
-  if (!vehiclesRes.ok) {
-    return [];
+  try {
+    const vehiclesRes = await axios.get(`${VEHICLES_API_URL}/vehicles`);
+    return vehiclesRes.data.map((vehicle: VehicleType) =>
+      Vehicle.parse(vehicle),
+    );
+  } catch (err) {
+    throw processHttpError(err, { requestTarget: 'vehicles' });
   }
-
-  const vehicles = await vehiclesRes.json();
-  return vehicles.map((vehicle: VehicleType) => Vehicle.parse(vehicle));
 }
 
 export async function getVehicleById(id: string) {
-  const vehicleRes = await fetch(`${VEHICLES_API_URL}/vehicles/${id}`);
-  if (!vehicleRes.ok) {
-    return null;
+  try {
+    const vehicleRes = await axios.get(`${VEHICLES_API_URL}/vehicles/${id}`);
+    return Vehicle.parse(vehicleRes.data);
+  } catch (err) {
+    throw processHttpError(err, { requestTarget: 'vehicle' });
   }
-
-  const vehicle = await vehicleRes.json();
-  return Vehicle.parseAsync(vehicle);
 }
 
 export async function createVehicle(dto: VehicleDtoType) {

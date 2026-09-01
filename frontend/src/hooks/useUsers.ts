@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useDataStore } from '../store/useDataStore';
 import { getUsers } from '../api/users';
+import { processUnknownError } from '../util/errors';
+import type { AppError } from '../util/errors';
 
 export function useUsers() {
   const users = useDataStore((state) => state.users);
   const setUsers = useDataStore((state) => state.setUsers);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState<AppError | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -17,8 +19,9 @@ export function useUsers() {
       try {
         const usersData = await getUsers();
         setUsers(usersData);
-      } catch (err: unknown) {
-        setError(err);
+      } catch (err) {
+        setError(processUnknownError(err));
+        setUsers([]);
       } finally {
         setLoading(false);
       }

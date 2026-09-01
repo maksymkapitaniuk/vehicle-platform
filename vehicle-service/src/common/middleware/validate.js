@@ -20,7 +20,7 @@ const validate = (schema) => async (req, res, next) => {
                 message: e.message,
               },
         ),
-        reason: err,
+        cause: err,
       });
     }
     return next(err);

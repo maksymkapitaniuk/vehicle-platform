@@ -6,6 +6,7 @@ import { UserFormPage } from './pages/UserFormPage';
 import { Vehicles } from './pages/Vehicles';
 import { Vehicle } from './pages/Vehicle';
 import { VehicleFormPage } from './pages/VehicleFormPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -32,6 +33,8 @@ function App() {
             path="/update-vehicle/:id"
             element={<VehicleFormPage mode="update" />}
           />
+
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

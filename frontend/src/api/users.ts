@@ -1,27 +1,27 @@
+import axios from 'axios';
 import { User } from '../dto/User';
 import type { UserType, UserDtoType } from '../dto/User';
+import { processHttpError } from '../util/errors';
 
 const USERS_API_URL =
   import.meta.env.VITE_USERS_API_URL ?? 'http://localhost:3000';
 
 export async function getUsers() {
-  const usersRes = await fetch(`${USERS_API_URL}/users`);
-  if (!usersRes.ok) {
-    return [];
+  try {
+    const usersRes = await axios.get<UserType[]>(`${USERS_API_URL}/users`);
+    return usersRes.data.map((user: UserType) => User.parse(user));
+  } catch (err) {
+    throw processHttpError(err, { requestTarget: 'users' });
   }
-
-  const users = await usersRes.json();
-  return users.map((user: UserType) => User.parse(user));
 }
 
 export async function getUserById(id: number) {
-  const userRes = await fetch(`${USERS_API_URL}/users/${id}`);
-  if (!userRes.ok) {
-    return null;
+  try {
+    const userRes = await axios.get(`${USERS_API_URL}/users/${id}`);
+    return User.parse(userRes.data);
+  } catch (err) {
+    throw processHttpError(err, { requestTarget: 'user' });
   }
-
-  const user = await userRes.json();
-  return User.parseAsync(user);
 }
 
 export async function createUser(dto: UserDtoType) {

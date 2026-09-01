@@ -4,12 +4,16 @@ const errorHandler = (err, req, res, _next) => {
     return res.json({
       message: 'JSON parsing error: Invalid JSON body',
       errorCode: 'body_parsing_error',
-      reason: err,
+      cause: err,
     });
   }
 
   res.status(500);
-  res.json(err);
+  res.json({
+    message: 'Unknon internal server error',
+    errorCode: 'internal_server_error',
+    cause: err,
+  });
 };
 
 export default errorHandler;

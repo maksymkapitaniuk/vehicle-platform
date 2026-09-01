@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import { UserCard } from '../components/data/UserCard';
+import { UsersGrid } from '../components/data/UsersGrid';
+import { Loader } from '../components/ui/Loader';
+import { ErrorBlock } from '../components/error/ErrorBlock';
 import { useUsers } from '../hooks/useUsers';
 
 export function Users() {
-  const { users } = useUsers();
+  const { users, loading, error } = useUsers();
 
   return (
-    <Container>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 4 }}>
         <Typography variant="h5">Users:</Typography>
         <Button
@@ -23,11 +23,9 @@ export function Users() {
           Create a User
         </Button>
       </Box>
-      <Grid container spacing={3} sx={{ mt: 4 }}>
-        {users.map((user) => (
-          <UserCard key={user.id} user={user} />
-        ))}
-      </Grid>
-    </Container>
+      {error && <ErrorBlock error={error} />}
+      {loading && <Loader message="Loading users' data..." />}
+      <UsersGrid users={users} />
+    </Box>
   );
 }

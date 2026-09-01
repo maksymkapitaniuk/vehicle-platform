@@ -15,7 +15,7 @@ vehiclesRouter.get('/', async (req, res) => {
       return res.status(500).json({
         message: 'Internal mongoose error',
         errorCode: 'mongoose_error',
-        reason: err,
+        cause: err,
       });
     }
   }
@@ -41,7 +41,7 @@ vehiclesRouter.post('/', validate(CreateVehicleDto), async (req, res) => {
               message,
             }))
           : undefined,
-        reason: err,
+        cause: err,
       });
     }
 
@@ -49,7 +49,7 @@ vehiclesRouter.post('/', validate(CreateVehicleDto), async (req, res) => {
       return res.status(500).json({
         message: 'Internal mongoose error',
         errorCode: 'mongoose_error',
-        reason: err,
+        cause: err,
       });
     }
   }
@@ -63,7 +63,7 @@ vehiclesRouter.get('/:id', async (req, res) => {
       res.status(404);
       res.json({
         message: 'Vehicle with such id was not found',
-        errorCode: 'entity_not_found',
+        errorCode: 'entity_not_found_error',
       });
     }
 
@@ -72,7 +72,7 @@ vehiclesRouter.get('/:id', async (req, res) => {
     if (err instanceof Error.CastError && err.path === '_id') {
       return res.status(404).json({
         message: 'Vehicle with such id was not found',
-        errorCode: 'entity_not_found',
+        errorCode: 'entity_not_found_error',
       });
     }
 
@@ -80,7 +80,7 @@ vehiclesRouter.get('/:id', async (req, res) => {
       return res.status(500).json({
         message: 'Internal mongoose error',
         errorCode: 'mongoose_error',
-        reason: err,
+        cause: err,
       });
     }
   }
@@ -97,7 +97,7 @@ vehiclesRouter.put('/:id', validate(UpdateVehicleDto), async (req, res) => {
       res.status(404);
       res.json({
         message: 'Vehicle with such id was not found',
-        errorCode: 'entity_not_found',
+        errorCode: 'entity_not_found_error',
       });
     }
 
@@ -118,14 +118,14 @@ vehiclesRouter.put('/:id', validate(UpdateVehicleDto), async (req, res) => {
               message,
             }))
           : undefined,
-        reason: err,
+        cause: err,
       });
     }
 
     if (err instanceof Error.CastError && err.path === '_id') {
       return res.status(404).json({
         message: 'Vehicle with such id was not found',
-        errorCode: 'entity_not_found',
+        errorCode: 'entity_not_found_error',
       });
     }
 
@@ -133,7 +133,7 @@ vehiclesRouter.put('/:id', validate(UpdateVehicleDto), async (req, res) => {
       return res.status(500).json({
         message: 'Internal mongoose error',
         errorCode: 'mongoose_error',
-        reason: err,
+        cause: err,
       });
     }
   }
@@ -147,7 +147,7 @@ vehiclesRouter.delete('/:id', async (req, res) => {
       res.status(404);
       res.json({
         message: 'Vehicle with such id was not found',
-        errorCode: 'entity_not_found',
+        errorCode: 'entity_not_found_error',
       });
     }
 
@@ -156,7 +156,7 @@ vehiclesRouter.delete('/:id', async (req, res) => {
     if (err instanceof Error.CastError && err.path === '_id') {
       return res.status(404).json({
         message: 'Vehicle with such id was not found',
-        errorCode: 'entity_not_found',
+        errorCode: 'entity_not_found_error',
       });
     }
 
@@ -164,7 +164,7 @@ vehiclesRouter.delete('/:id', async (req, res) => {
       return res.status(500).json({
         message: 'Internal mongoose error',
         errorCode: 'mongoose_error',
-        reason: err,
+        cause: err,
       });
     }
   }

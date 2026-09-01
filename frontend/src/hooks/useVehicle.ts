@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { getVehicleById } from '../api/vehicles';
 import type { VehicleType } from '../dto/Vehicle';
+import { processUnknownError } from '../util/errors';
+import type { AppError } from '../util/errors';
 
 export function useVehicle(vehicleId: string) {
   const [vehicle, setVehicle] = useState<VehicleType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState<AppError | null>(null);
 
   useEffect(() => {
     async function fetchVehicle() {
@@ -15,8 +17,9 @@ export function useVehicle(vehicleId: string) {
       try {
         const vehicleData = await getVehicleById(vehicleId);
         setVehicle(vehicleData);
-      } catch (err: unknown) {
-        setError(err);
+      } catch (err) {
+        setError(processUnknownError(err));
+        setVehicle(null);
       } finally {
         setLoading(false);
       }
