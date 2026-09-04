@@ -1,8 +1,6 @@
-import { Component } from 'react';
-import type { ReactNode } from 'react';
+import { Component, type ReactNode } from 'react';
 import { ErrorFallback } from './ErrorFallback';
-import { processUnknownError } from '../../util/errors';
-import type { AppError } from '../../util/errors';
+import { AppError } from '../../util/errors';
 
 export interface ErrorBoundaryProps {
   children: ReactNode;
@@ -31,6 +29,22 @@ export class ErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: unknown) {
-    return { error: processUnknownError(error) };
+    if (!error) {
+      return;
+    }
+
+    if (error instanceof AppError) {
+      return { error };
+    }
+
+    if (error instanceof Error) {
+      return { error: new AppError(error.message, { cause: error }) };
+    }
+
+    return {
+      error: new AppError('Oops... An unknown error occurred.', {
+        cause: error,
+      }),
+    };
   }
 }

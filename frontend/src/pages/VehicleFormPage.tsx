@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { ErrorBlock } from '../components/error/ErrorBlock';
+import { ErrorBlock } from '../components/error/ErrorBlock/ErrorBlock';
 import { VehicleForm } from '../components/forms/VehicleForm';
 import type { FormMode } from '../components/forms/types/FormMode';
 import { useVehicle } from '../hooks/useVehicle';

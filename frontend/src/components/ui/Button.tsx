@@ -1,9 +1,8 @@
 import type { ElementType } from 'react';
 import { styled } from '@mui/material/styles';
-import MuiButton from '@mui/material/Button';
-import type {
-  ButtonProps as MuiButtonProps,
-  ButtonTypeMap,
+import MuiButton, {
+  type ButtonProps as MuiButtonProps,
+  type ButtonTypeMap,
 } from '@mui/material/Button';
 
 export type ButtonProps<

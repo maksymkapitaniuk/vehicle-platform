@@ -1,16 +1,14 @@
-import { useState } from 'react';
-import type { HTMLInputTypeAttribute } from 'react';
-import { Controller } from 'react-hook-form';
-import type {
-  Control,
-  FieldValues,
-  FieldPath,
-  FieldError,
-  Merge,
-  FieldErrorsImpl,
+import { useState, type HTMLInputTypeAttribute } from 'react';
+import {
+  Controller,
+  type Control,
+  type FieldValues,
+  type FieldPath,
+  type FieldError,
+  type Merge,
+  type FieldErrorsImpl,
 } from 'react-hook-form';
-import TextField from '@mui/material/TextField';
-import type { TextFieldProps } from '@mui/material/TextField';
+import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';

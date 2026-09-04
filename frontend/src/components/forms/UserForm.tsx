@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import type { SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
@@ -8,9 +8,13 @@ import Typography from '@mui/material/Typography';
 import { Loader } from '../ui/Loader';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { getUserFormSchema } from '../../dto/User';
-import type { UserType, UserDtoType } from '../../dto/User';
-import { createUser, updateUser } from '../../api/users';
+import { ErrorBlock } from '../error/ErrorBlock/ErrorBlock';
+import {
+  getUserFormSchema,
+  type UserType,
+  type UserDtoType,
+} from '../../dto/User';
+import { useSendRequest } from '../../hooks/useSendRequest';
 import { formatDateForInput } from '../../util/date';
 import type { FormMode } from './types/FormMode';
 
@@ -28,6 +32,42 @@ export function UserForm({ mode, user, loading }: UserFormProps) {
   type FormSchemaOutputType = z.output<typeof FormSchema>;
 
   const {
+    sendRequest: createUser,
+    response: createResponse,
+    loading: creatingUser,
+    error: errorCreatingUser,
+  } = useSendRequest({
+    requestTarget: 'user',
+    method: 'POST',
+  });
+
+  const {
+    sendRequest: updateUser,
+    response: updateResponse,
+    loading: updatingUser,
+    error: errorUpdatingUser,
+  } = useSendRequest({
+    requestTarget: 'user',
+    method: 'PUT',
+  });
+
+  useEffect(() => {
+    if (createResponse) {
+      navigate('/users');
+    }
+  }, [createResponse, navigate]);
+
+  useEffect(() => {
+    if (updateResponse) {
+      if (user) {
+        navigate(`/users/${user.id}`);
+      } else {
+        navigate('/users');
+      }
+    }
+  }, [user, updateResponse, navigate]);
+
+  const {
     control,
     handleSubmit,
     formState: { dirtyFields, errors, isDirty },
@@ -43,6 +83,7 @@ export function UserForm({ mode, user, loading }: UserFormProps) {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
       birthDate: '',
     },
   });
@@ -56,10 +97,7 @@ export function UserForm({ mode, user, loading }: UserFormProps) {
         birthDate: data.birthDate!,
       };
 
-      const res = await createUser(dto);
-      if (res) {
-        navigate(`/users`);
-      }
+      await createUser({ data: dto });
     } else {
       if (!user) {
         return;
@@ -83,10 +121,7 @@ export function UserForm({ mode, user, loading }: UserFormProps) {
         return navigate(`/users/${user.id}`);
       }
 
-      const res = await updateUser(user.id, dto);
-      if (res) {
-        return navigate(`/users/${user.id}`);
-      }
+      await updateUser({ data: dto, entityId: user.id });
     }
   };
 
@@ -163,8 +198,16 @@ export function UserForm({ mode, user, loading }: UserFormProps) {
         </Typography>
       )}
 
+      {errorCreatingUser && <ErrorBlock error={errorCreatingUser} />}
+      {errorUpdatingUser && <ErrorBlock error={errorUpdatingUser} />}
+
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-        <Button onClick={() => navigate(-1)} variant="outlined" size="large">
+        <Button
+          onClick={() => navigate(-1)}
+          variant="outlined"
+          size="large"
+          disabled={creatingUser || updatingUser}
+        >
           Back
         </Button>
         <Button
@@ -172,7 +215,9 @@ export function UserForm({ mode, user, loading }: UserFormProps) {
           color="primary"
           size="large"
           sx={{ flexGrow: 1 }}
-          disabled={mode === 'update' && !user}
+          disabled={
+            (mode === 'update' && !user) || creatingUser || updatingUser
+          }
         >
           {mode === 'create' ? 'Create' : 'Edit'}
         </Button>

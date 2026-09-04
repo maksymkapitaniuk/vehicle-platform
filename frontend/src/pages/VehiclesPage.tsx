@@ -4,10 +4,10 @@ import Typography from '@mui/material/Typography';
 import { Button } from '../components/ui/Button';
 import { VehiclesGrid } from '../components/data/VehiclesGrid';
 import { Loader } from '../components/ui/Loader';
-import { ErrorBlock } from '../components/error/ErrorBlock';
+import { ErrorBlock } from '../components/error/ErrorBlock/ErrorBlock';
 import { useVehicles } from '../hooks/useVehicles';
 
-export function Vehicles() {
+export function VehiclesPage() {
   const { vehicles, loading, error } = useVehicles();
 
   return (

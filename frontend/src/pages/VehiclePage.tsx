@@ -3,10 +3,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { VehicleInfo } from '../components/data/VehicleInfo';
 import { Loader } from '../components/ui/Loader';
-import { ErrorBlock } from '../components/error/ErrorBlock';
+import { ErrorBlock } from '../components/error/ErrorBlock/ErrorBlock';
 import { useVehicle } from '../hooks/useVehicle';
 
-export function Vehicle() {
+export function VehiclePage() {
   const { id: vehicleId_optional } = useParams();
   const vehicleId = vehicleId_optional ?? '';
 

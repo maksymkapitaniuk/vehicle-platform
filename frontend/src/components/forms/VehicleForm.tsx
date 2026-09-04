@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import type { SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
@@ -8,9 +8,13 @@ import Typography from '@mui/material/Typography';
 import { Loader } from '../ui/Loader';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { getVehicleFormSchema } from '../../dto/Vehicle';
-import type { VehicleType, VehicleDtoType } from '../../dto/Vehicle';
-import { createVehicle, updateVehicle } from '../../api/vehicles';
+import { ErrorBlock } from '../error/ErrorBlock/ErrorBlock';
+import {
+  getVehicleFormSchema,
+  type VehicleType,
+  type VehicleDtoType,
+} from '../../dto/Vehicle';
+import { useSendRequest } from '../../hooks/useSendRequest';
 import type { FormMode } from './types/FormMode';
 
 export interface VehicleFormProps {
@@ -25,6 +29,42 @@ export function VehicleForm({ mode, vehicle, loading }: VehicleFormProps) {
   const FormSchema = getVehicleFormSchema(mode);
   type FormSchemaInputType = z.input<typeof FormSchema>;
   type FormSchemaOutputType = z.output<typeof FormSchema>;
+
+  const {
+    sendRequest: createVehicle,
+    response: createResponse,
+    loading: creatingVehicle,
+    error: errorCreatingVehicle,
+  } = useSendRequest({
+    requestTarget: 'vehicle',
+    method: 'POST',
+  });
+
+  const {
+    sendRequest: updateVehicle,
+    response: updateResponse,
+    loading: updatingVehicle,
+    error: errorUpdatingVehicle,
+  } = useSendRequest({
+    requestTarget: 'vehicle',
+    method: 'PUT',
+  });
+
+  useEffect(() => {
+    if (createResponse) {
+      navigate('/vehicles');
+    }
+  }, [createResponse, navigate]);
+
+  useEffect(() => {
+    if (updateResponse) {
+      if (vehicle) {
+        navigate(`/vehicles/${vehicle._id}`);
+      } else {
+        navigate('/vehicles');
+      }
+    }
+  }, [vehicle, updateResponse, navigate]);
 
   const {
     control,
@@ -52,10 +92,7 @@ export function VehicleForm({ mode, vehicle, loading }: VehicleFormProps) {
         user_id: data.user_id!,
       };
 
-      const res = await createVehicle(dto);
-      if (res) {
-        navigate(`/vehicles`);
-      }
+      await createVehicle({ data: dto });
     } else {
       if (!vehicle) {
         return;
@@ -76,10 +113,7 @@ export function VehicleForm({ mode, vehicle, loading }: VehicleFormProps) {
         return navigate(`/vehicles/${vehicle._id}`);
       }
 
-      const res = await updateVehicle(vehicle._id, dto);
-      if (res) {
-        return navigate(`/vehicles/${vehicle._id}`);
-      }
+      await updateVehicle({ data: dto, entityId: vehicle._id });
     }
   };
 
@@ -150,8 +184,16 @@ export function VehicleForm({ mode, vehicle, loading }: VehicleFormProps) {
         </Typography>
       )}
 
+      {errorCreatingVehicle && <ErrorBlock error={errorCreatingVehicle} />}
+      {errorUpdatingVehicle && <ErrorBlock error={errorUpdatingVehicle} />}
+
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-        <Button onClick={() => navigate(-1)} variant="outlined" size="large">
+        <Button
+          onClick={() => navigate(-1)}
+          variant="outlined"
+          size="large"
+          disabled={creatingVehicle || updatingVehicle}
+        >
           Back
         </Button>
         <Button
@@ -159,7 +201,11 @@ export function VehicleForm({ mode, vehicle, loading }: VehicleFormProps) {
           color="primary"
           size="large"
           sx={{ flexGrow: 1 }}
-          disabled={mode === 'update' && !vehicle}
+          disabled={
+            (mode === 'update' && !vehicle) ||
+            creatingVehicle ||
+            updatingVehicle
+          }
         >
           {mode === 'create' ? 'Create' : 'Edit'}
         </Button>

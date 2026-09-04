@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getUserById } from '../api/users';
-import type { UserType } from '../dto/User';
-import { processUnknownError } from '../util/errors';
-import type { AppError } from '../util/errors';
+import axios from 'axios';
+import { USERS_API_URL } from '../util/api';
+import { User, type UserType } from '../dto/User';
+import { processHttpError, type AppError } from '../util/errors';
 
 export function useUser(userId: number) {
   const [user, setUser] = useState<UserType | null>(null);
@@ -15,10 +15,12 @@ export function useUser(userId: number) {
       setError(null);
 
       try {
-        const userData = await getUserById(userId);
+        const userRes = await axios.get(`${USERS_API_URL}/users/${userId}`);
+        const userData = User.parse(userRes.data);
+
         setUser(userData);
       } catch (err) {
-        setError(processUnknownError(err));
+        setError(processHttpError(err, { requestTarget: 'user' }));
         setUser(null);
       } finally {
         setLoading(false);

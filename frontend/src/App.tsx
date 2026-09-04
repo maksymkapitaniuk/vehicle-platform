@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LayoutWrapper } from './components/layout/LayoutWrapper';
-import { Users } from './pages/Users';
-import { User } from './pages/User';
+import { UsersPage } from './pages/UsersPage';
+import { UserPage } from './pages/UserPage';
 import { UserFormPage } from './pages/UserFormPage';
-import { Vehicles } from './pages/Vehicles';
-import { Vehicle } from './pages/Vehicle';
+import { VehiclesPage } from './pages/VehiclesPage';
+import { VehiclePage } from './pages/VehiclePage';
 import { VehicleFormPage } from './pages/VehicleFormPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
@@ -15,16 +15,16 @@ function App() {
         <Route element={<LayoutWrapper />}>
           <Route path="/" element={<Navigate to="/users" replace />} />
 
-          <Route path="/users" element={<Users />} />
-          <Route path="users/:id" element={<User />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="users/:id" element={<UserPage />} />
           <Route path="/create-user" element={<UserFormPage mode="create" />} />
           <Route
             path="/update-user/:id"
             element={<UserFormPage mode="update" />}
           />
 
-          <Route path="/vehicles" element={<Vehicles />} />
-          <Route path="/vehicles/:id" element={<Vehicle />} />
+          <Route path="/vehicles" element={<VehiclesPage />} />
+          <Route path="/vehicles/:id" element={<VehiclePage />} />
           <Route
             path="/create-vehicle"
             element={<VehicleFormPage mode="create" />}

@@ -1,10 +1,12 @@
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { ErrorBlock } from '../error/ErrorBlock/ErrorBlock';
+import { useSendRequest } from '../../hooks/useSendRequest';
 import { Button } from '../ui/Button';
-import { deleteUser } from '../../api/users';
 import type { UserType } from '../../dto/User';
 
 export interface UserInfoProps {
@@ -14,12 +16,21 @@ export interface UserInfoProps {
 export function UserInfo({ user }: UserInfoProps) {
   const navigate = useNavigate();
 
-  async function handleDeleteUser() {
-    const res = await deleteUser(user.id);
+  const {
+    sendRequest: deleteUser,
+    response: deleteResponse,
+    loading: deletingUser,
+    error: errorDeletingUser,
+  } = useSendRequest({ requestTarget: 'user', method: 'DELETE' });
 
-    if (res) {
+  useEffect(() => {
+    if (deleteResponse) {
       navigate('/users');
     }
+  }, [deleteResponse, navigate]);
+
+  async function handleDeleteUser() {
+    await deleteUser({ entityId: user.id });
   }
 
   return (
@@ -38,12 +49,16 @@ export function UserInfo({ user }: UserInfoProps) {
           {user.birthDate.toDateString()}
         </Typography>
       </Stack>
+
+      {errorDeletingUser && <ErrorBlock error={errorDeletingUser} />}
+
       <Stack direction="row" spacing={1}>
         <Button
           component={Link}
           to={`/update-user/${user.id}`}
           startIcon={<EditIcon />}
           color="info"
+          disabled={deletingUser}
         >
           Edit User
         </Button>
@@ -51,6 +66,7 @@ export function UserInfo({ user }: UserInfoProps) {
           startIcon={<DeleteIcon />}
           color="error"
           onClick={handleDeleteUser}
+          disabled={deletingUser}
         >
           Delete User
         </Button>

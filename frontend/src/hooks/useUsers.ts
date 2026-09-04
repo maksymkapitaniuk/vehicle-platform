@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useDataStore } from '../store/useDataStore';
-import { getUsers } from '../api/users';
-import { processUnknownError } from '../util/errors';
-import type { AppError } from '../util/errors';
+import { USERS_API_URL } from '../util/api';
+import { User, type UserType } from '../dto/User';
+import { processHttpError, type AppError } from '../util/errors';
 
 export function useUsers() {
   const users = useDataStore((state) => state.users);
@@ -17,10 +18,14 @@ export function useUsers() {
       setError(null);
 
       try {
-        const usersData = await getUsers();
+        const usersRes = await axios.get<UserType[]>(`${USERS_API_URL}/users`);
+        const usersData = usersRes.data.map((user: UserType) =>
+          User.parse(user),
+        );
+
         setUsers(usersData);
       } catch (err) {
-        setError(processUnknownError(err));
+        setError(processHttpError(err, { requestTarget: 'users' }));
         setUsers([]);
       } finally {
         setLoading(false);

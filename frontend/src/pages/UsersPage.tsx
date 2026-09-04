@@ -4,10 +4,10 @@ import Typography from '@mui/material/Typography';
 import { Button } from '../components/ui/Button';
 import { UsersGrid } from '../components/data/UsersGrid';
 import { Loader } from '../components/ui/Loader';
-import { ErrorBlock } from '../components/error/ErrorBlock';
+import { ErrorBlock } from '../components/error/ErrorBlock/ErrorBlock';
 import { useUsers } from '../hooks/useUsers';
 
-export function Users() {
+export function UsersPage() {
   const { users, loading, error } = useUsers();
 
   return (

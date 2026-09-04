@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios';
-import { toPossessive } from './requestTarget';
-import type { RequestTarget } from './requestTarget';
+import { toPossessive, type RequestTarget } from './requestTarget';
 
 export interface AppErrorOptions extends ErrorOptions {
   errorCode?: string | undefined;
@@ -17,15 +16,15 @@ export class AppError extends Error {
   }
 }
 
-export interface AppZodErrorOptions extends AppErrorOptions {
+export interface ValidationErrorOptions extends AppErrorOptions {
   errors?: Record<string, string | string[]>[] | undefined;
 }
 
-export class AppZodError extends AppError {
-  name = 'AppZodError';
+export class ValidationError extends AppError {
+  name = 'ValidationError';
   errors?: Record<string, string | string[]>[] | undefined;
 
-  constructor(message?: string | undefined, options?: AppZodErrorOptions) {
+  constructor(message?: string | undefined, options?: ValidationErrorOptions) {
     super(message, options);
 
     this.errors = options?.errors;
@@ -69,7 +68,7 @@ export function processHttpError(
             },
     );
 
-    return new AppZodError(
+    return new ValidationError(
       `Oops... We received invalid ${options.requestTarget ? toPossessive(options.requestTarget) + ' ' : ''}data from server.`,
       {
         cause: err,
@@ -101,6 +100,25 @@ export function processHttpError(
       return new NotFoundError(message, { cause: err, errorCode });
     }
 
+    if (err.status === 400 || err.status === 422) {
+      message = err.response.data.message ?? 'Invalid request data';
+      let errors: Record<string, string | string[]>[] | undefined;
+
+      if (
+        options?.requestTarget === 'user' ||
+        options?.requestTarget === 'users'
+      ) {
+        message = err.response.data.message?.join?.(', ');
+        errors = err.response.data.message.map((entry: string) => ({
+          message: entry,
+        }));
+      } else {
+        errors = err.response.data.errors;
+      }
+
+      return new ValidationError(message, { cause: err, errorCode, errors });
+    }
+
     return new AppError(message, { cause: err, errorCode });
   }
 
@@ -110,12 +128,4 @@ export function processHttpError(
       cause: err,
     },
   );
-}
-
-export function processUnknownError(err: unknown): AppError {
-  if (err instanceof AppError) {
-    return err;
-  }
-
-  return new AppError('Oops... An unknown error occurred.');
 }

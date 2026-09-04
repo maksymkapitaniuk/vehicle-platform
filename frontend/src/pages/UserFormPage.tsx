@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { ErrorBlock } from '../components/error/ErrorBlock';
+import { ErrorBlock } from '../components/error/ErrorBlock/ErrorBlock';
 import { UserForm } from '../components/forms/UserForm';
 import type { FormMode } from '../components/forms/types/FormMode';
 import { useUser } from '../hooks/useUser';

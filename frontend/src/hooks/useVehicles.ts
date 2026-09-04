@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useDataStore } from '../store/useDataStore';
-import { getVehicles } from '../api/vehicles';
-import { processUnknownError } from '../util/errors';
-import type { AppError } from '../util/errors';
+import { VEHICLES_API_URL } from '../util/api';
+import { Vehicle, type VehicleType } from '../dto/Vehicle';
+import { processHttpError, type AppError } from '../util/errors';
 
 export function useVehicles() {
   const vehicles = useDataStore((state) => state.vehicles);
@@ -17,10 +18,14 @@ export function useVehicles() {
       setError(null);
 
       try {
-        const vehiclesData = await getVehicles();
+        const vehiclesRes = await axios.get(`${VEHICLES_API_URL}/vehicles`);
+        const vehiclesData = vehiclesRes.data.map((vehicle: VehicleType) =>
+          Vehicle.parse(vehicle),
+        );
+
         setVehicles(vehiclesData);
       } catch (err) {
-        setError(processUnknownError(err));
+        setError(processHttpError(err, { requestTarget: 'vehicles' }));
         setVehicles([]);
       } finally {
         setLoading(false);

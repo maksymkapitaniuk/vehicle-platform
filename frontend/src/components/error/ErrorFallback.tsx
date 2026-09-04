@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { ErrorBlock } from './ErrorBlock';
+import { ErrorBlock } from './ErrorBlock/ErrorBlock';
 import type { AppError } from '../../util/errors';
 
 export interface ErrorFallbackProps {
