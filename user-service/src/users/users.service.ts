@@ -14,14 +14,15 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateUserDto) {
-    const salt = process.env.HASH_SALT;
-    if (!salt) {
+    const saltRounds = Number(process.env.HASH_SALT_ROUNDS);
+
+    if (!saltRounds) {
       throw new InternalServerErrorException(
-        'Cannot hash password: undefined HASH_SALT.',
+        'Cannot hash password: undefined HASH_SALT_ROUNDS.',
       );
     }
 
-    const hash = await bcrypt.hash(dto.password, salt);
+    const hash = await bcrypt.hash(dto.password, saltRounds);
 
     try {
       return await this.prisma.user.create({

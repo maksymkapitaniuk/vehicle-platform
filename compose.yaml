@@ -1,0 +1,22 @@
+services:
+  user-service:
+    build: ./user-service
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./user-service/.env
+
+  vehicle-service:
+    build: ./vehicle-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./vehicle-service/.env
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - user-service
+      - vehicle-service

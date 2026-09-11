@@ -1,0 +1,6 @@
+node_modules
+dist
+build
+.git
+npm-debug.log
+Dockerfile
