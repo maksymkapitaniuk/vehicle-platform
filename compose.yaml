@@ -1,4 +1,17 @@
 services:
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
   user-service:
     build: ./user-service
     ports:
@@ -15,8 +28,10 @@ services:
 
   frontend:
     build: ./frontend
-    ports:
-      - "80:5173"
     depends_on:
       - user-service
       - vehicle-service
+
+volumes:
+  caddy_data:
+  caddy_config:
