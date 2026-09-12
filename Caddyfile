@@ -1,0 +1,13 @@
+vehicle-platform.duckdns.org {
+  handle_path /api/users/* {
+    reverse_proxy user-service:3000
+  }
+
+  handle_path /api/vehicles/* {
+    reverse_proxy vehicle-service:3001
+  }
+
+  handle {
+    reverse_proxy frontend:80
+  }
+}

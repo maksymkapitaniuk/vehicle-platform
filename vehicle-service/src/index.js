@@ -7,16 +7,20 @@ import errorHandler from './common/middleware/error-handler.js';
 
 const app = express();
 
+const environment = process.env.ENV ?? 'LOCAL';
 const port = process.env.PORT ?? 3000;
-
 const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
-const corsOptions = {
-  origin: clientUrl,
-  credentials: true,
-};
 
 app.use(helmet());
-app.use(cors(corsOptions));
+
+if (environment === 'LOCAL') {
+  const corsOptions = {
+    origin: clientUrl,
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
+}
+
 app.use(express.json());
 
 app.use('/vehicles', vehiclesRouter);
