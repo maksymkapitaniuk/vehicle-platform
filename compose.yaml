@@ -1,4 +1,12 @@
 services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    restart: unless-stopped
+    env_file:
+      - ./rabbitmq.env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
   caddy:
     image: caddy:latest
     restart: unless-stopped
@@ -11,16 +19,23 @@ services:
       - caddy_config:/config
     depends_on:
       - frontend
+      - user-service
+      - vehicle-service
+      - rabbitmq
 
   user-service:
     build: ./user-service
     env_file:
       - ./user-service/.env
+    depends_on:
+      - rabbitmq
 
   vehicle-service:
     build: ./vehicle-service
     env_file:
       - ./vehicle-service/.env
+    depends_on:
+      - rabbitmq
 
   frontend:
     build: ./frontend

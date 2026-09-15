@@ -1,9 +1,11 @@
 import {
   Injectable,
+  Inject,
   InternalServerErrorException,
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
@@ -11,7 +13,10 @@ import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('EVENTS_SERVICE') private rabbitMqClient: ClientProxy,
+  ) {}
 
   async create(dto: CreateUserDto) {
     const saltRounds = Number(process.env.HASH_SALT_ROUNDS);
@@ -25,12 +30,26 @@ export class UsersService {
     const hash = await bcrypt.hash(dto.password, saltRounds);
 
     try {
-      return await this.prisma.user.create({
+      const user = await this.prisma.user.create({
         data: { ...dto, password: hash },
         omit: {
           password: true,
         },
       });
+
+      this.rabbitMqClient
+        .emit('USER_CREATED', {
+          make: 'Unknown',
+          model: 'Unknown',
+          year: null,
+          user_id: user.id,
+        })
+        .subscribe({
+          error: (error) =>
+            console.error('Cannot publish USER_CREATED event:', error),
+        });
+
+      return user;
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
