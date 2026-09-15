@@ -30,6 +30,6 @@ jobs:
           script: |
             cd /home/ubuntu/app
             docker compose down
-            docker system prune -a --volumes
+            docker system prune -a --volumes -y
             docker compose up -d --build
             docker image prune -f
