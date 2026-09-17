@@ -1,12 +1,14 @@
 # User service
 
-A NestJS service that provides CRUD operations for users. Data is stored in PostgreSQL through Prisma. Passwords are hashed when users are created and are never returned in API responses.
+The user service is a NestJS API for authenticated user CRUD operations. Data is stored in PostgreSQL through Prisma. Passwords are hashed with bcrypt and are never returned in API responses. Redis stores admin sessions, and RabbitMQ publishes user-created events for the vehicle service.
 
 ## Requirements
 
 - Node.js 22 or later;
-- PostgreSQL;
-- a created database and a connection string for it.
+- npm;
+- PostgreSQL with a created database;
+- Redis;
+- RabbitMQ.
 
 ## Installation
 
@@ -14,17 +16,22 @@ A NestJS service that provides CRUD operations for users. Data is stored in Post
 npm install
 ```
 
-Copy `.env.example` to `.env` and provide the required values:
+Copy `.env.example` to `.env` and set valid values:
 
 ```env
+ENV=LOCAL
 PORT=3000
-DATABASE_URL="postgres://pg-user:pg-password@host:5432/db-name"
-HASH_SALT="hash salt"
-CLIENT_URL="http://localhost:5173"
+DATABASE_URL=postgres://pg-user:pg-password@host:5432/db-name
+HASH_SALT_ROUNDS=10
+CLIENT_URL=http://localhost:5173
+RABBITMQ_CONNECTION_STRING=amqp://localhost
+RABBITMQ_QUEUE_NAME=events_queue
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=redis_password
 ```
+
+`HASH_SALT_ROUNDS` is required and controls bcrypt's cost factor. The application does not read the older `HASH_SALT` variable.
 
 Apply the Prisma migrations and generate the client:
 
@@ -44,35 +51,46 @@ npm run build
 npm run start:prod
 ```
 
-The API listens on `http://localhost:3000` by default.
+The API listens on `http://localhost:3000` by default. With `ENV=LOCAL`, CORS allows `CLIENT_URL` and credentials. In a reverse-proxy deployment, the public API path is `/api/users`.
 
-Admins are created explicitly through the registration endpoint. Admin sessions are stored in Redis for 8 hours.
+## Authentication API
 
-## API
+Base URL: `http://localhost:3000/admins`.
+
+| Method | Path               | Description                                              |
+| ------ | ------------------ | -------------------------------------------------------- |
+| `POST` | `/admins/register` | create an administrator                                  |
+| `POST` | `/admins/login`    | authenticate an administrator and create a Redis session |
+| `POST` | `/admins/logout`   | invalidate the current session                           |
+
+Registration and login use this body shape:
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "StrongPass1"
+}
+```
+
+The email must be valid. Registration passwords must be 8-64 characters and contain an uppercase letter, a lowercase letter, and a digit. Duplicate admin emails return `409 Conflict`; invalid credentials return `401 Unauthorized`. Login returns a token, `expiresIn` in seconds (`28800`), and the admin ID/email. It also sets the `admin_session` HttpOnly cookie.
+
+## Users API
 
 Base URL: `http://localhost:3000/users`.
 
-Authentication endpoints are available under `http://localhost:3000/admins`:
+All endpoints require an active admin session. Send either `Authorization: Bearer <token>` or the `admin_session` cookie.
 
-| Method | Path               | Description                                      |
-| ------ | ------------------ | ------------------------------------------------ |
-| `POST` | `/admins/register` | create an admin account                          |
-| `POST` | `/admins/login`    | authenticate an admin and create a Redis session |
-| `POST` | `/admins/logout`   | invalidate the current session                   |
+| Method   | Path         | Description              |
+| -------- | ------------ | ------------------------ |
+| `GET`    | `/users`     | get all users            |
+| `GET`    | `/users/:id` | get a user by numeric ID |
+| `POST`   | `/users`     | create a user            |
+| `PUT`    | `/users/:id` | update a user            |
+| `DELETE` | `/users/:id` | delete a user            |
 
-Send the login response token as `Authorization: Bearer <token>` or use the `admin_session` HttpOnly cookie. All `/users` endpoints require an active admin session.
+### User Request Body
 
-| Method   | Path         | Description                |
-| -------- | ------------ | -------------------------- |
-| `GET`    | `/users`     | get all users              |
-| `GET`    | `/users/:id` | get a user by numeric `id` |
-| `POST`   | `/users`     | create a user              |
-| `PUT`    | `/users/:id` | update a user              |
-| `DELETE` | `/users/:id` | delete a user              |
-
-### Request Body
-
-The following fields are required for `POST /users`:
+All fields are required for `POST /users`:
 
 ```json
 {
@@ -83,9 +101,11 @@ The following fields are required for `POST /users`:
 }
 ```
 
-Constraints: `name` must contain 2-50 characters, the password must contain 8-64 characters including an uppercase letter, a lowercase letter, and a digit, and `birthDate` must be between `1900-01-01` and the current date. All fields are optional for `PUT`.
+`name` must contain 2-50 characters. The email must be valid. The password must be 8-64 characters and contain an uppercase letter, a lowercase letter, and a digit. `birthDate` must be an ISO date between `1900-01-01` and the current date. All fields are optional for `PUT`, but supplied fields use the same validation rules.
 
-A successful response contains `id`, `name`, `email`, `birthDate`, `createdAt`, and `updatedAt`. The `password` field is never returned. A duplicate email returns `409 Conflict`, a missing user returns `404 Not Found`, and an invalid request body returns `400 Bad Request`.
+Successful responses contain `id`, `name`, `email`, `birthDate`, `createdAt`, and `updatedAt`; `password` is never returned. A duplicate email returns `409 Conflict`, a missing user returns `404 Not Found`, and an invalid body returns `400 Bad Request`.
+
+Creating a user publishes a `USER_CREATED` RabbitMQ event with an initial vehicle payload: `make: "Unknown"`, `model: "Unknown"`, `year: null`, and the new user's numeric `user_id`.
 
 ## Scripts
 
@@ -102,8 +122,10 @@ A successful response contains `id`, `name`, `email`, `birthDate`, `createdAt`, 
 
 ## Docker
 
-The service Dockerfile exposes port `3000`. Pass the variables from `.env` when starting the container, and make sure PostgreSQL is reachable from the container through `DATABASE_URL`.
+The Dockerfile exposes port `3000`. Pass variables from `.env` when starting the container, and make sure PostgreSQL, Redis, and RabbitMQ are reachable from the container. PostgreSQL is not provisioned by the repository's Compose file.
 
-## Related Component
+## Related Documentation
 
-By default, the frontend connects to this service through `http://localhost:3000`. See the [frontend README](../frontend/README.md).
+- [Project README](../README.md) - complete architecture and local/Compose setup;
+- [Frontend README](../frontend/README.md) - client routes and API configuration;
+- [Vehicle service README](../vehicle-service/README.md) - vehicle API and RabbitMQ consumer.
