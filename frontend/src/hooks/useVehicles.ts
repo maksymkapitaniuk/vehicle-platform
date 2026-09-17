@@ -5,7 +5,7 @@ import { VEHICLES_API_URL } from '../util/api';
 import { Vehicle, type VehicleType } from '../dto/Vehicle';
 import { processHttpError, type AppError } from '../util/errors';
 
-export function useVehicles() {
+export function useVehicles(onAuthError?: (() => void) | undefined) {
   const vehicles = useDataStore((state) => state.vehicles);
   const setVehicles = useDataStore((state) => state.setVehicles);
 
@@ -25,7 +25,9 @@ export function useVehicles() {
 
         setVehicles(vehiclesData);
       } catch (err) {
-        setError(processHttpError(err, { requestTarget: 'vehicles' }));
+        setError(
+          processHttpError(err, { requestTarget: 'vehicles', onAuthError }),
+        );
         setVehicles([]);
       } finally {
         setLoading(false);
@@ -33,7 +35,7 @@ export function useVehicles() {
     }
 
     fetchVehicles();
-  }, [setVehicles]);
+  }, [setVehicles, onAuthError]);
 
   return { vehicles, loading, error };
 }

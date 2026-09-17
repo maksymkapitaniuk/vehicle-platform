@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import { toPossessive, type RequestTarget } from './requestTarget';
+import { clearAdminToken } from './auth';
 
 export interface AppErrorOptions extends ErrorOptions {
   errorCode?: string | undefined;
@@ -46,8 +47,21 @@ export class NotFoundError extends AppError {
   }
 }
 
+export class AuthError extends AppError {
+  name = 'AuthError';
+
+  constructor(message?: string | undefined, options?: AppErrorOptions) {
+    super(message, options);
+
+    if (!options?.errorCode) {
+      this.errorCode = 'auth_error';
+    }
+  }
+}
+
 export interface HttpErrorOptions {
   requestTarget?: RequestTarget | undefined;
+  onAuthError?: (() => void) | undefined;
 }
 
 export function processHttpError(
@@ -117,6 +131,16 @@ export function processHttpError(
       }
 
       return new ValidationError(message, { cause: err, errorCode, errors });
+    }
+
+    if (err.status === 401) {
+      message =
+        err.response.data.message ?? 'Invalid authentication credentials';
+
+      clearAdminToken();
+      options.onAuthError?.();
+
+      return new AuthError(message, { cause: err });
     }
 
     return new AppError(message, { cause: err, errorCode });

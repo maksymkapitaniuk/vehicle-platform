@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+
   rabbitmq:
     image: rabbitmq:4-management-alpine
     restart: unless-stopped
@@ -22,6 +29,7 @@ services:
       - user-service
       - vehicle-service
       - rabbitmq
+      - redis
 
   user-service:
     build: ./user-service
@@ -29,6 +37,7 @@ services:
       - ./user-service/.env
     depends_on:
       - rabbitmq
+      - redis
 
   vehicle-service:
     build: ./vehicle-service
@@ -47,3 +56,4 @@ volumes:
   caddy_data:
   caddy_config:
   rabbitmq_data:
+  redis_data:

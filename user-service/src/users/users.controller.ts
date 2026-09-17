@@ -8,11 +8,14 @@ import {
   Put,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { AdminsGuard } from '../admins/admins.guard';
 
 @Controller('users')
+@UseGuards(AdminsGuard)
 @UsePipes(
   new ValidationPipe({
     transform: true,

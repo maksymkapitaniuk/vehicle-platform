@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Button } from '../components/ui/Button';
@@ -8,7 +9,12 @@ import { ErrorBlock } from '../components/error/ErrorBlock/ErrorBlock';
 import { useUsers } from '../hooks/useUsers';
 
 export function UsersPage() {
-  const { users, loading, error } = useUsers();
+  const navigate = useNavigate();
+  const onError = useCallback(() => {
+    navigate('/admin/login');
+  }, [navigate]);
+
+  const { users, loading, error } = useUsers(onError);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

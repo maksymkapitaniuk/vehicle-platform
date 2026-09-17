@@ -1,4 +1,5 @@
-import { useParams } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { UserInfo } from '../components/data/UserInfo';
@@ -10,7 +11,12 @@ export function UserPage() {
   const { id: userId_str } = useParams();
   const userId = Number(userId_str);
 
-  const { user, loading, error } = useUser(userId);
+  const navigate = useNavigate();
+  const onAuthError = useCallback(() => {
+    navigate('/admin/login');
+  }, [navigate]);
+
+  const { user, loading, error } = useUser(userId, onAuthError);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

@@ -21,6 +21,9 @@ PORT=3000
 DATABASE_URL="postgres://pg-user:pg-password@host:5432/db-name"
 HASH_SALT="hash salt"
 CLIENT_URL="http://localhost:5173"
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=redis_password
 ```
 
 Apply the Prisma migrations and generate the client:
@@ -43,9 +46,21 @@ npm run start:prod
 
 The API listens on `http://localhost:3000` by default.
 
+Admins are created explicitly through the registration endpoint. Admin sessions are stored in Redis for 8 hours.
+
 ## API
 
 Base URL: `http://localhost:3000/users`.
+
+Authentication endpoints are available under `http://localhost:3000/admins`:
+
+| Method | Path               | Description                                      |
+| ------ | ------------------ | ------------------------------------------------ |
+| `POST` | `/admins/register` | create an admin account                          |
+| `POST` | `/admins/login`    | authenticate an admin and create a Redis session |
+| `POST` | `/admins/logout`   | invalidate the current session                   |
+
+Send the login response token as `Authorization: Bearer <token>` or use the `admin_session` HttpOnly cookie. All `/users` endpoints require an active admin session.
 
 | Method   | Path         | Description                |
 | -------- | ------------ | -------------------------- |

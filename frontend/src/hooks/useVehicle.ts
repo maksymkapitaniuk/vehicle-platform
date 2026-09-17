@@ -4,7 +4,10 @@ import { VEHICLES_API_URL } from '../util/api';
 import { Vehicle, type VehicleType } from '../dto/Vehicle';
 import { processHttpError, type AppError } from '../util/errors';
 
-export function useVehicle(vehicleId: string) {
+export function useVehicle(
+  vehicleId: string,
+  onAuthError?: (() => void) | undefined,
+) {
   const [vehicle, setVehicle] = useState<VehicleType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
@@ -22,7 +25,9 @@ export function useVehicle(vehicleId: string) {
 
         setVehicle(vehicleData);
       } catch (err) {
-        setError(processHttpError(err, { requestTarget: 'vehicle' }));
+        setError(
+          processHttpError(err, { requestTarget: 'vehicle', onAuthError }),
+        );
         setVehicle(null);
       } finally {
         setLoading(false);
@@ -32,7 +37,7 @@ export function useVehicle(vehicleId: string) {
     if (vehicleId) {
       fetchVehicle();
     }
-  }, [vehicleId]);
+  }, [vehicleId, onAuthError]);
 
   return { vehicle, loading, error };
 }

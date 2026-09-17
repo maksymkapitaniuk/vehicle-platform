@@ -4,12 +4,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { PrismaService } from '../prisma.service';
+import { AdminsModule } from '../admins/admins.module';
+import { AdminsGuard } from '../admins/admins.guard';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService, PrismaService],
+  providers: [UsersService, PrismaService, AdminsGuard],
   imports: [
     ConfigModule,
+    AdminsModule,
     ClientsModule.registerAsync([
       {
         name: 'EVENTS_SERVICE',

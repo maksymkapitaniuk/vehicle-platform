@@ -1,25 +1,33 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import { Button } from '../ui/Button';
 import logo from '../../assets/logo.svg';
+import { clearAdminToken, getAdminToken } from '../../util/auth';
 
 export function Navbar() {
+  const navigate = useNavigate();
+
+  const isLoggedIn = Boolean(getAdminToken());
+
+  function handleLogout() {
+    clearAdminToken();
+    navigate('/admin/login');
+  }
+
   return (
     <AppBar position="static" color="default">
-      <Toolbar disableGutters>
-        <Box sx={{ flexGrow: 0 }}>
+      <Toolbar disableGutters sx={{ px: 4 }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', gap: 4 }}>
           <Link to="/vehicles">
             <Box
               component="img"
               src={logo}
               alt="Logo"
-              sx={{ mx: 4, cursor: 'pointer' }}
+              sx={{ cursor: 'pointer' }}
             />
           </Link>
-        </Box>
-        <Box sx={{ flexGrow: 1, display: 'flex', gap: 4 }}>
           <Button component={Link} to="/users" variant="text" color="clean">
             Users
           </Button>
@@ -28,6 +36,16 @@ export function Navbar() {
             Vehicles
           </Button>
         </Box>
+        {isLoggedIn && (
+          <Button
+            variant="text"
+            color="clean"
+            onClick={handleLogout}
+            sx={{ flexGrow: 0 }}
+          >
+            Logout
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import axios, { type Method, type AxiosResponse } from 'axios';
-import { USERS_API_URL, VEHICLES_API_URL } from '../util/api';
+import { ADMINS_API_URL, USERS_API_URL, VEHICLES_API_URL } from '../util/api';
 import { processHttpError, AppError } from '../util/errors';
 import type { RequestTarget } from '../util/requestTarget';
+import { getAdminToken } from '../util/auth';
 
 export interface RequestOptions {
   requestTarget: RequestTarget;
   method: Method;
+  onAuthError?: (() => void) | undefined;
 }
 
 export interface SendRequestProps {
@@ -16,6 +18,8 @@ export interface SendRequestProps {
 
 function getRequestUrlBase(requestTarget: RequestTarget) {
   switch (requestTarget) {
+    case 'admin':
+      return `${ADMINS_API_URL}/admins`;
     case 'user':
     case 'users':
       return `${USERS_API_URL}/users`;
@@ -30,7 +34,11 @@ function getRequestUrlBase(requestTarget: RequestTarget) {
   }
 }
 
-export function useSendRequest({ requestTarget, method }: RequestOptions) {
+export function useSendRequest({
+  requestTarget,
+  method,
+  onAuthError,
+}: RequestOptions) {
   const [response, setResponse] = useState<AxiosResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
@@ -47,10 +55,17 @@ export function useSendRequest({ requestTarget, method }: RequestOptions) {
     }
 
     try {
-      const axiosResponse = await axios.request({ url, method, data });
+      const token = getAdminToken();
+
+      const axiosResponse = await axios.request({
+        url,
+        method,
+        data,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
       setResponse(axiosResponse);
     } catch (err) {
-      setError(processHttpError(err, { requestTarget }));
+      setError(processHttpError(err, { requestTarget, onAuthError }));
       setResponse(null);
     } finally {
       setLoading(false);

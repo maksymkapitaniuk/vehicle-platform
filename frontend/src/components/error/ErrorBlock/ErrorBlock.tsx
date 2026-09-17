@@ -4,6 +4,7 @@ import { Button } from '../../ui/Button';
 import {
   NotFoundError,
   ValidationError,
+  AuthError,
   type AppError,
 } from '../../../util/errors';
 import { ErrorBlockMessage } from './ErrorBlockMessage';
@@ -19,7 +20,9 @@ export function ErrorBlock({ error, onTryAgain }: ErrorBlockProps) {
       ? 'No data found'
       : error instanceof ValidationError
         ? 'Validation Error'
-        : 'An error occured';
+        : error instanceof AuthError
+          ? 'Authentication Error'
+          : 'An error occured';
 
   return (
     <Paper

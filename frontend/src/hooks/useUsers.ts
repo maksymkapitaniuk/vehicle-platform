@@ -4,8 +4,9 @@ import { useDataStore } from '../store/useDataStore';
 import { USERS_API_URL } from '../util/api';
 import { User, type UserType } from '../dto/User';
 import { processHttpError, type AppError } from '../util/errors';
+import { getAdminToken } from '../util/auth';
 
-export function useUsers() {
+export function useUsers(onAuthError?: (() => void) | undefined) {
   const users = useDataStore((state) => state.users);
   const setUsers = useDataStore((state) => state.setUsers);
 
@@ -18,14 +19,20 @@ export function useUsers() {
       setError(null);
 
       try {
-        const usersRes = await axios.get<UserType[]>(`${USERS_API_URL}/users`);
+        const token = getAdminToken();
+
+        const usersRes = await axios.get<UserType[]>(`${USERS_API_URL}/users`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
         const usersData = usersRes.data.map((user: UserType) =>
           User.parse(user),
         );
 
         setUsers(usersData);
       } catch (err) {
-        setError(processHttpError(err, { requestTarget: 'users' }));
+        setError(
+          processHttpError(err, { requestTarget: 'users', onAuthError }),
+        );
         setUsers([]);
       } finally {
         setLoading(false);
@@ -33,7 +40,7 @@ export function useUsers() {
     }
 
     fetchUsers();
-  }, [setUsers]);
+  }, [setUsers, onAuthError]);
 
   return { users, loading, error };
 }
